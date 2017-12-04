@@ -18,7 +18,6 @@ sub new {
 #      _key_pub  => shift,
 #      _ssn       => shift,
     # Print all the values just for clarification.
-    print "New object. \n";
     $pk = Crypt::PK::RSA->new();
     
     bless $self, $class;
@@ -40,7 +39,7 @@ sub create_keys() {
 #    print "PRIV " . Dumper($private_der);
 #    print "PUB " . Dumper($public_der);
 
-    return "Created";
+    return $public_der;
 }
 
 sub encode_string($) {

@@ -1,3 +1,4 @@
+# perl -I.
 
 use strict;
 use warnings;
@@ -5,12 +6,15 @@ use warnings;
 use Anonymise::Utilities;
 
 my $test = Anonymise::Utilities->new();
-print "TEST: " . $test->create_keys() . "\n";
+
+my $key = $test->create_keys();
+print "* Test create_keys \n$key\n";
+
 my $enc = $test->encode_string("BLABLABLA");
-print "TEST2 [$enc].\n";
+print "* Test encode_string => " . length($enc) . " chars\n$enc \n";
 my $enc64 = $test->encode_string_base64("BLABLABLA");
-print "TEST2 b64 [$enc64].\n";
+print "* Test encode_string_base64 => " . length($enc64) . " chars\n$enc64\n";
 my $dec = $test->decode_string($enc);
-print "TEST3: " . $dec . "\n";
+print "* Test decode_string => " . length($dec) . " chars\n" . $dec . "\n";
 
 
