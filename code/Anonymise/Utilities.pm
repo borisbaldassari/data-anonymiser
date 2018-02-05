@@ -42,6 +42,20 @@ sub create_keys() {
     return $public_der;
 }
 
+sub scramble_string() {
+    my $self = shift;
+    my $in = shift || '';
+
+    my $out = $pk->encrypt($in);
+    
+    # It is ok to truncate hashes, and encoding base64 makes
+    # the collision risk a bit lower. For a good explanation see
+    # https://stackoverflow.com/questions/4567089/hash-function-that-produces-short-hashes
+    my $out_short = substr( encode_base64($out), 0, 16 );
+
+    return $out_short;
+}
+
 sub encode_string($) {
     my $self = shift;
     my $in = shift || '';

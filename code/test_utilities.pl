@@ -10,6 +10,10 @@ my $test = Anonymise::Utilities->new();
 my $key = $test->create_keys();
 print "* Test create_keys \n$key\n";
 
+my $scrambled = $test->scramble_string("BLABLABLA");
+print "* Test scramble_string => " . length($scrambled) 
+    . " chars\n$scrambled \n";
+
 my $enc = $test->encode_string("BLABLABLA");
 print "* Test encode_string => " . length($enc) . " chars\n$enc \n";
 my $enc64 = $test->encode_string_base64("BLABLABLA");
