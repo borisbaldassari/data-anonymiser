@@ -32,8 +32,8 @@ sub create_keys() {
     # Key generation
 #    $pk->generate_key($key_size);
 
-    #Key generation
-    $pk->generate_key(256, 65537);
+    # Key generation
+    $pk->generate_key($key_size, 65537);
     my $private_der = encode_base64( $pk->export_key_der('private') );
     my $public_der = encode_base64( $pk->export_key_der('public') );
 #    print "PRIV " . Dumper($private_der);
@@ -42,17 +42,22 @@ sub create_keys() {
     return $public_der;
 }
 
+
 sub scramble_string() {
     my $self = shift;
     my $in = shift || '';
 
+    # If the in string is longer than 470, it fails. It's a lot more than 
+    # our nominal use case, so just truncate it at 470.
+    $in = substr( $in, 0, 470 ); 
+    
     my $out = $pk->encrypt($in);
     
     # It is ok to truncate hashes, and encoding base64 makes
     # the collision risk a bit lower. For a good explanation see
     # https://stackoverflow.com/questions/4567089/hash-function-that-produces-short-hashes
     my $out_short = substr( encode_base64($out), 0, 16 );
-
+    
     return $out_short;
 }
 
