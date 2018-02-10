@@ -27,13 +27,9 @@ sub new {
 
 sub create_keys() {
     my $self = shift;
-    my $key_size = shift || 512;
 
     # Key generation
-#    $pk->generate_key($key_size);
-
-    # Key generation
-    $pk->generate_key($key_size, 65537);
+    $pk->generate_key(512, 65537);
     my $private_der = encode_base64( $pk->export_key_der('private') );
     my $public_der = encode_base64( $pk->export_key_der('public') );
 #    print "PRIV " . Dumper($private_der);
