@@ -1,3 +1,17 @@
+#########################################################
+#
+# Copyright (c) 2015-2017 Castalia Solutions and others.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# Contributors:
+#   Boris Baldassari - Castalia Solutions
+#
+#########################################################
+
 package Anonymise::Utilities;
 
 use strict;
@@ -8,23 +22,23 @@ use MIME::Base64;
 
 use Data::Dumper;
 
-my $pk = Crypt::PK::RSA->new();
+# The Crypt::PK::RSA that will be used during this session.
+my $pk;
 
 sub new {
     my $class = shift;
     my $self = {
     };
-#      _key_priv => shift,
-#      _key_pub  => shift,
-#      _ssn       => shift,
-    # Print all the values just for clarification.
+
     $pk = Crypt::PK::RSA->new();
     
     bless $self, $class;
     return $self;
 }
 
-
+# Creates a pair of public/private key with size 512.
+# Returns: 
+#   - The public key encoded in base64.
 sub create_keys() {
     my $self = shift;
 
@@ -39,6 +53,15 @@ sub create_keys() {
 }
 
 
+# Encode a string with the generated public/private key and returns 
+# a string truncated to 16 chars. Output is base64-encoded.
+# Note that this function is one-way: it is not possible to retrieve
+# the plain text string from the truncated output.
+#
+# Params:
+#   - $in the plain text string to encode
+# Returns:
+#   - the encoded string encoded in base64
 sub scramble_string() {
     my $self = shift;
     my $in = shift || '';
@@ -57,6 +80,13 @@ sub scramble_string() {
     return $out_short;
 }
 
+# Encode a string with the generated public/private key and returns 
+# the string. The output will include weird chars.
+#
+# Params:
+#   - $in the plain text string to encode
+# Returns:
+#   - the encoded string
 sub encode_string($) {
     my $self = shift;
     my $in = shift || '';
@@ -66,6 +96,13 @@ sub encode_string($) {
     return $out;
 }
 
+# Encode a string with the generated public/private key and returns 
+# a base64-encoded string.
+#
+# Params:
+#   - $in the plain text string to encode
+# Returns:
+#   - the encoded string in base64
 sub encode_string_base64($) {
     my $self = shift;
     my $in = shift || '';
@@ -76,8 +113,13 @@ sub encode_string_base64($) {
     return $out;
 }
 
-
-sub decode_string($) {
+# Decode a string based on the generated public/private key.
+#
+# Params:
+#   - $in the encoded string to decode
+# Returns:
+#   - the decoded string
+sub decode_string() {
     my $self = shift;
     my $in = shift || '';
 
