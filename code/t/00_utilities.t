@@ -63,13 +63,22 @@ $str = "Blmeciruvqflbuscrnazemicqfsvbljsclnzerucrbsqfhjgqbsdfxeidn<scbfshcgqlkun
 $scrambled = $utils->scramble_string($str);
 ok(length($scrambled) == 16, "Scrambled output for test case 3 is 16 chars long.");
 
-my $enc = $utils->encode_string("BLABLABLA");
+$str = "BLABLABLA";
+my $enc = $utils->encode_string($str);
 ok(length($enc) == 512, "Encoded string for input 9 chars is 512 chars long.");
 
-$str = "BLABLABLA";
 my $enc64 = $utils->encode_string_base64($str);
 ok(length($enc64) == 692, "Encoded string for input 9 chars is 692 chars long.");
 my $dec = $utils->decode_string($enc);
+ok($dec eq $str, "Decoded string is equal to original string.");
+
+$str = 'BLABdfalkyuuvqflbuscrnazemicqfsvbljsclnzerucrbsqfhjgqbsdfxeidn<scbfshcgqlkunrLCUEBCHDQSFSDGHCKJEGxbrouvqflbuscrnazemicqfsvbljsclnzerucrbsqfhjgqbsdfxeidn<scbfshcgqlkunrLCUEBCHDQSFSDGHCKJEGxbrouvqflbuscrnazemicqfsvbljsclnzerucrbsqfhjgqbsdfxeidn<scbfshcgqlkunrLCUEBCHDQSFSDGHCKJEGxbrokjh4k3h5lkjhI*&(*$khjkjkljfhfksjh43k8*7@JHkjhkLABLA';
+$enc = $utils->encode_string($str); 
+ok(length($enc) == 512, "Encoded string for input 332 chars is 512 chars long.");
+
+$enc64 = $utils->encode_string_base64($str);
+ok(length($enc64) == 692, "Encoded string for input 332 chars is 692 chars long.");
+$dec = $utils->decode_string($enc);
 ok($dec eq $str, "Decoded string is equal to original string.");
 
 done_testing();
