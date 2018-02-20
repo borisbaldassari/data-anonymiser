@@ -1,7 +1,3 @@
-----
-title: Page title
----
-
 
 # Anonymise utilities
 
