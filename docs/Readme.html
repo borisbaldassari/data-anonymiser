@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
+    <title>Page title</title>
+    <link type="text/css" rel="stylesheet" href="assets/css/github-markdown.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/pilcrow.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
+  </head>
+  <body>
+    <article class="markdown-body"><h1 id="anonymise-utilities"><a class="header-link" href="#anonymise-utilities"></a>Anonymise utilities</h1>
+<p>This Perl module provides utilities to anonymise data, in the context of dataset generation. The idea basically is to encrypt the data with a private/public key system and then throw away the keys. It has the following properties:</p>
+<ul class="list">
+<li>Retrieving the original data is close to impossible, according to current cryptographic systems. One can still, for debugging purposes, get the original data back if the key is saved. For production or final releases the key should not be saved anywhere to ensure privacy.</li>
+<li>It still preserves one-to-one relationship between original data and encrypted data, with as little collisions as possible. This is especially useful for research analysis, where one can detect identical items without knowing the protected data.</li>
+</ul>
+<p>It is ok to truncate hashes, and encoding base64 makes the collision risk a bit lower. For a good explanation see <a href="https://stackoverflow.com/questions/4567089/hash-function-that-produces-short-hashes">hash function that produces short hashes</a> on StackOverflow.</p>
+<h2 id="module-description"><a class="header-link" href="#module-description"></a>Module description</h2>
+<p>Canonical example:</p>
+<pre class="hljs"><code><span class="hljs-keyword">use</span> <span class="hljs-symbol">Anonymise:</span><span class="hljs-symbol">:Utilities</span>;
+
+my <span class="hljs-variable">$utils</span> = <span class="hljs-symbol">Anonymise:</span><span class="hljs-symbol">:Utilities-&gt;new</span>();
+<span class="hljs-variable">$utils</span>-&gt;create_keys();
+
+<span class="hljs-comment"># Get a 16 chars scrambled string</span>
+my <span class="hljs-variable">$scrambled</span> = <span class="hljs-variable">$utils</span>-&gt;scramble_string(<span class="hljs-string">"blablabla"</span>);
+
+<span class="hljs-comment"># Get a full-size binary-encoded string</span>
+my <span class="hljs-variable">$scrambled</span> = <span class="hljs-variable">$utils</span>-&gt;scramble_string(<span class="hljs-string">"blablabla"</span>);
+
+<span class="hljs-comment"># Get a full-size base64-encoded string</span>
+my <span class="hljs-variable">$scrambled</span> = <span class="hljs-variable">$utils</span>-&gt;scramble_string(<span class="hljs-string">"blablabla"</span>);</code></pre><p>The Perl module offers the following functions:</p>
+<ul class="list">
+<li><p><strong>scramble_string($str)</strong> Returns a 16 chars anonymised string. Several runs on the same input string will always return the same scrambled string.</p>
+</li>
+<li><p><strong>encode_string($str)</strong> Returns a full-size (512 chars) string encoded using the private key. The returned string will most likely contain binary characters. Several runs on the same input string will always return the same string.</p>
+</li>
+<li><p><strong>encode_string_base64($str)</strong> Returns a full-size (692 chars) string encoded using the private key and then encoded in base64. The returned string will not contain any binary characters. Several runs on the same input string will always return the same scrambled string.</p>
+</li>
+</ul>
+<h2 id="roadmap"><a class="header-link" href="#roadmap"></a>Roadmap</h2>
+<p>We plan on having specific functions for specific data types, e.g. email addresses.</p>
+<h2 id="technical-reauirements"><a class="header-link" href="#technical-reauirements"></a>Technical reauirements</h2>
+<p>The  Perl module requires <code>Crypt::PK::RSA</code>.</p>
+<h2 id="functional-requirements"><a class="header-link" href="#functional-requirements"></a>Functional requirements</h2>
+<p>In our use case we want to be able to anonymise the following types of data:</p>
+<ul class="list">
+<li>UUIDs, whatever they are.</li>
+<li>Email addresses</li>
+<li>Java classes (by class? or by full path?)</li>
+</ul>
+<p>We want to have a one-to-one relationship from original data to encrypted data, so as to identify identical entries without knowing them.</p>
+<p>We want a method that prevent any reconstruction of the original data, according to the current state of research on privacy.</p>
+<h2 id="test-output"><a class="header-link" href="#test-output"></a>Test output</h2>
+<p>Perl tests output:</p>
+<pre class="hljs"><code>boris@kadath:code$ perl -I. t/<span class="hljs-number">00</span>_utilities.t 
+ok <span class="hljs-number">1</span> - use Anonymise::Utilities;
+ok <span class="hljs-number">2</span> - An <span class="hljs-built_in">object</span> <span class="hljs-keyword">of</span> <span class="hljs-keyword">class</span> <span class="hljs-comment">'Anonymise::Utilities' isa 'Anonymise::Utilities'</span>
+<span class="hljs-meta"># Create keys.</span>
+ok <span class="hljs-number">3</span> - <span class="hljs-keyword">Public</span> <span class="hljs-keyword">key</span> starts <span class="hljs-keyword">with</span> MII...
+ok <span class="hljs-number">4</span> - <span class="hljs-keyword">Public</span> <span class="hljs-keyword">key</span> has length <span class="hljs-number">746.</span>
+ok <span class="hljs-number">5</span> - Scrambled output <span class="hljs-keyword">for</span> input <span class="hljs-number">1</span> <span class="hljs-built_in">char</span> <span class="hljs-keyword">is</span> <span class="hljs-number">16</span> chars <span class="hljs-built_in">long</span>.
+ok <span class="hljs-number">6</span> - Scrambled output <span class="hljs-keyword">for</span> input <span class="hljs-number">9</span> <span class="hljs-built_in">char</span> <span class="hljs-keyword">is</span> <span class="hljs-number">16</span> chars <span class="hljs-built_in">long</span>.
+ok <span class="hljs-number">7</span> - Scrambled output <span class="hljs-keyword">for</span> input <span class="hljs-number">86</span> <span class="hljs-built_in">char</span> <span class="hljs-keyword">is</span> <span class="hljs-number">16</span> chars <span class="hljs-built_in">long</span>.
+ok <span class="hljs-number">8</span> - Scrambled output <span class="hljs-keyword">for</span> <span class="hljs-keyword">in</span> <span class="hljs-number">471</span> <span class="hljs-built_in">char</span> <span class="hljs-keyword">is</span> <span class="hljs-number">16</span> chars <span class="hljs-built_in">long</span>.
+ok <span class="hljs-number">9</span> - Scrambled output <span class="hljs-keyword">for</span> <span class="hljs-keyword">in</span> <span class="hljs-number">701</span> <span class="hljs-built_in">char</span> <span class="hljs-keyword">is</span> <span class="hljs-number">16</span> chars <span class="hljs-built_in">long</span>.
+ok <span class="hljs-number">10</span> - Scrambled output <span class="hljs-keyword">for</span> <span class="hljs-keyword">in</span> <span class="hljs-number">931</span> <span class="hljs-built_in">char</span> <span class="hljs-keyword">is</span> <span class="hljs-number">16</span> chars <span class="hljs-built_in">long</span>.
+ok <span class="hljs-number">11</span> - Scrambled output <span class="hljs-keyword">for</span> test <span class="hljs-keyword">case</span> <span class="hljs-keyword">is</span> <span class="hljs-number">16</span> chars <span class="hljs-built_in">long</span>.
+ok <span class="hljs-number">12</span> - Scrambled output <span class="hljs-keyword">for</span> test <span class="hljs-keyword">case</span> <span class="hljs-number">2</span> <span class="hljs-keyword">is</span> <span class="hljs-number">16</span> chars <span class="hljs-built_in">long</span>.
+ok <span class="hljs-number">13</span> - Scrambled output <span class="hljs-keyword">for</span> test <span class="hljs-keyword">case</span> <span class="hljs-number">3</span> <span class="hljs-keyword">is</span> <span class="hljs-number">16</span> chars <span class="hljs-built_in">long</span>.
+ok <span class="hljs-number">14</span> - Encoded <span class="hljs-built_in">string</span> <span class="hljs-keyword">for</span> input <span class="hljs-number">9</span> chars <span class="hljs-keyword">is</span> <span class="hljs-number">512</span> chars <span class="hljs-built_in">long</span>.
+ok <span class="hljs-number">15</span> - Encoded <span class="hljs-built_in">string</span> <span class="hljs-keyword">for</span> input <span class="hljs-number">9</span> chars <span class="hljs-keyword">is</span> <span class="hljs-number">692</span> chars <span class="hljs-built_in">long</span>.
+ok <span class="hljs-number">16</span> - Decoded <span class="hljs-built_in">string</span> <span class="hljs-keyword">is</span> equal <span class="hljs-keyword">to</span> original <span class="hljs-built_in">string</span>.
+<span class="hljs-number">1.</span><span class="hljs-number">.16</span></code></pre><p>Functions output:</p>
+<pre class="hljs"><code>* <span class="hljs-keyword">Test</span> create_keys
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0sHCiS8B1x0qLaeuJfLPE49K2fw5x4cp
+CoYpjYFECjuxNSEMUA5RlEBD37nesMK6ftEA3dVmtDtroA3EHG5NrbVqXCFKBAksdaLpDGPaemsA
+rMKo+D1rNQem6jF/aBPbUydkqXYtsdNe9LQ2NJGPTbxZByMSW9R/YlPLOUO1xW7arh63zMed2W5u
+SJFyBroquRw9vJVRhVYDmNJOzL5o7OClOEPPWgv9Riz4/sCWvgX5vEFuCBT8PsXUNmCe8QUE/wzs
+Y+BjnQntyrdsMPPVcRhX6wagdHPgcq8A2lnHnLtwMewfBWT38BiACp5scPHOu+hyB76YJsIMNJtC
+<span class="hljs-number">25</span>yc/QIDAQAB
+
+* <span class="hljs-keyword">Test</span> scramble_string =&gt; <span class="hljs-number">16</span> chars
+XMOx+PZLA15tKvEB
+* <span class="hljs-keyword">Test</span> encode_string =&gt; <span class="hljs-number">256</span> chars
+[SNIP -- github-flavoured markdown doesn't like weird chars]
+* <span class="hljs-keyword">Test</span> encode_string_base64 =&gt; <span class="hljs-number">348</span> chars
+bM0ekgWEYIroYPioZ7qZO2iR5L0dfPKfd6pptwHXc+qBqkJd5uIG4BBzFm8I4xVeKXv3Haf/xpx4
+<span class="hljs-number">3</span>pRVw6FCS8kEWcfevsn8AQX1Pf37eMgLxVP3t0CZ4dPHmNB28AMAJaKr5v5jII+lYrsKqeRjWQ8Z
+RFKLfwyxnn9R9TPpaBL0S+QRgNIybp/m6bQ5POBOlvcHer5wtmSGbCTFMXF54ZT90DkpOD/gVGtx
+YmLgfEWqKmXjjm+mXMkqPlFKHarJB0A22mA6yKAgrfEi3gjaofbZ6z3SLOR44YKM0RJFHNM5DV/p
+qTp2O1pgQI8iHrm+t18vcSzt7lqkhsmBHhpmKQ==
+* <span class="hljs-keyword">Test</span> decode_string =&gt; <span class="hljs-number">9</span> chars
+BLABLABLA</code></pre>    </article>
+  </body>
+</html>
