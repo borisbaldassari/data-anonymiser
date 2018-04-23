@@ -1,21 +1,21 @@
-#########################################################
+######################################################################
+# Copyright (c) 2017-2018 Castalia Solutions and others
 #
-# Copyright (c) 2015-2017 Castalia Solutions and others.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
 #
-# All rights reserved. This program and the accompanying materials
-# are made available under the terms of the Eclipse Public License v1.0
-# which accompanies this distribution, and is available at
-# http://www.eclipse.org/legal/epl-v10.html
-#
-# Contributors:
-#   Boris Baldassari - Castalia Solutions
-#
-#########################################################
+# SPDX-License-Identifier: EPL-2.0
+######################################################################
+
 
 use strict;
 use warnings;
 
 use Test::More;
+
+# We do not really need it, but the Perl module we test will.
+use_ok('Crypt::PK::RSA');
 
 use_ok('Anonymise::Utilities');
 
@@ -27,6 +27,7 @@ my $key = $utils->create_keys();
 ok($key =~ m!^MII!, "Public key starts with MII...");
 ok(length($key) == 746, "Public key has length 746.");
 
+note("Apply anonymisation to various entries.");
 my $str = "B";
 my $scrambled = $utils->scramble_string($str);
 ok(length($scrambled) == 16, "Scrambled output for input 1 char is 16 chars long.");

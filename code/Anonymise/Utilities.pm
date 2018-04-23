@@ -1,16 +1,13 @@
-#########################################################
+######################################################################
+# Copyright (c) 2017-2018 Castalia Solutions and others
 #
-# Copyright (c) 2015-2017 Castalia Solutions and others.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
 #
-# All rights reserved. This program and the accompanying materials
-# are made available under the terms of the Eclipse Public License v1.0
-# which accompanies this distribution, and is available at
-# http://www.eclipse.org/legal/epl-v10.html
-#
-# Contributors:
-#   Boris Baldassari - Castalia Solutions
-#
-#########################################################
+# SPDX-License-Identifier: EPL-2.0
+######################################################################
+
 
 package Anonymise::Utilities;
 
@@ -22,7 +19,7 @@ use MIME::Base64;
 
 use Data::Dumper;
 
-# The Crypt::PK::RSA that will be used during this session.
+# The Crypt::PK::RSA object that will be used during this session.
 my $pk;
 
 sub new {
