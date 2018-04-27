@@ -1,21 +1,32 @@
-ok 1 - use Anonymise::Utilities;
-ok 2 - An object of class 'Anonymise::Utilities' isa 'Anonymise::Utilities'
+t/00_utilities.t .. 
+ok 1 - use Crypt::PK::RSA;
+ok 2 - use Anonymise::Utilities;
+ok 3 - An object of class 'Anonymise::Utilities' isa 'Anonymise::Utilities'
 # Create keys.
-ok 3 - Public key starts with MII...
-ok 4 - Public key has length 746.
-ok 5 - Scrambled output for input 1 char is 16 chars long.
-ok 6 - Scrambled output for input 9 char is 16 chars long.
-ok 7 - Scrambled output for input 86 char is 16 chars long.
-ok 8 - Scrambled output for in 471 char is 16 chars long.
-ok 9 - Scrambled output for in 701 char is 16 chars long.
-ok 10 - Scrambled output for in 931 char is 16 chars long.
-ok 11 - Scrambled output for test case is 16 chars long.
-ok 12 - Scrambled output for test case 2 is 16 chars long.
-ok 13 - Scrambled output for test case 3 is 16 chars long.
-ok 14 - Encoded string for input 9 chars is 512 chars long.
-ok 15 - Encoded string for input 9 chars is 692 chars long.
-ok 16 - Decoded string is equal to original string.
-ok 17 - Encoded string for input 332 chars is 512 chars long.
-ok 18 - Encoded string for input 332 chars is 692 chars long.
-ok 19 - Decoded string is equal to original string.
-1..19
+ok 4 - Public key starts with MII...
+ok 5 - Public key has length 746.
+# Apply anonymisation to various entries.
+ok 6 - Scrambled output for input 1 char is 16 chars long.
+ok 7 - Scrambled output for input 9 char is 16 chars long.
+ok 8 - Scrambled output for input 86 char is 16 chars long.
+ok 9 - Scrambled output for in 471 char is 16 chars long.
+ok 10 - Scrambled output for in 701 char is 16 chars long.
+ok 11 - Scrambled output for in 931 char is 16 chars long.
+ok 12 - Scrambled output for test case is 16 chars long.
+ok 13 - Scrambled output for test case 2 is 16 chars long.
+ok 14 - Scrambled output for test case 3 is 16 chars long.
+ok 15 - Encoded string for input 9 chars is 512 chars long.
+ok 16 - Encoded string for input 9 chars is 692 chars long.
+ok 17 - Decoded string is equal to original string.
+ok 18 - Encoded string for input 332 chars is 512 chars long.
+ok 19 - Encoded string for input 332 chars is 692 chars long.
+ok 20 - Decoded string is equal to original string.
+ok 21 - Scrambled email is 33 chars long.
+ok 22 - Scrambled email has 2 parts separated by @.
+ok 23 - Scrambled email is 33 chars long.
+ok 24 - Scrambled email has 2 parts separated by @.
+1..24
+ok
+All tests successful.
+Files=1, Tests=24,  1 wallclock secs ( 0.01 usr  0.00 sys +  0.92 cusr  0.00 csys =  0.93 CPU)
+Result: PASS
