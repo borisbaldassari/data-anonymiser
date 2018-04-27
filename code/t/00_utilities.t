@@ -82,4 +82,16 @@ ok(length($enc64) == 692, "Encoded string for input 332 chars is 692 chars long.
 $dec = $utils->decode_string($enc);
 ok($dec eq $str, "Decoded string is equal to original string.");
 
+$str = 'boris@gmail.com';
+my $email_x = $utils->scramble_email($str); 
+ok(length($email_x) == 33, "Scrambled email is 33 chars long.");
+ok($email_x =~ m![^@]+\@[^@]+!, "Scrambled email has 2 parts separated by \@.");
+
+$str = 'trinity-823a6d2b-0639-447b-8970-ea13dea1ed40-1464795259694@3capp-gmx-bs60';
+$email_x = $utils->scramble_email($str); 
+ok(length($email_x) == 33, "Scrambled email is 33 chars long.");
+ok($email_x =~ m![^@]+\@[^@]+!, "Scrambled email has 2 parts separated by \@.");
+
+
+
 done_testing();

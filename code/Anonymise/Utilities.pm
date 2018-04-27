@@ -77,6 +77,29 @@ sub scramble_string() {
     return $out_short;
 }
 
+
+# Encode an email address with the generated public/private key and returns 
+# a string truncated to 16 chars. Output is base64-encoded.
+# Note that this function is one-way: it is not possible to retrieve
+# the plain text string from the truncated output.
+#
+# Params:
+#   - $in the plain text string to encode
+# Returns:
+#   - the encoded string encoded in base64
+sub scramble_email() {
+    my $self = shift;
+    my $in = shift || '';
+
+    my ($name, $comp) = split('@', $in);
+    my $name_x = &scramble_string($self, $name);
+    my $comp_x = &scramble_string($self, $comp);
+
+    my $out_short = $name_x . '@' . $comp_x;
+    
+    return $out_short;
+}
+
 # Encode a string with the generated public/private key and returns 
 # the string. The output will include weird chars.
 #
