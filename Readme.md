@@ -2,16 +2,18 @@
 The published web site for this repository is at [https://borisbaldassari.github.io/data-anonymiser/](https://borisbaldassari.github.io/data-anonymiser/).
 
 > **Announce: Reviews are needed! Help us make the world a safer place!**
-> We aim to provide several software-related data sets, which include personal data from developers and contributors. We need people to review this anonymisation module to make sure the anonymisation process is safe, both privacy-wise and research-wise (i.e. anonymised data are still useful). Please try these functions, use them, abuse them, and [contact us](https://github.com/borisbaldassari/data-anonymiser/issues) if you have any concern or question. 
+> We aim to provide several software-related data sets, which include personal data from developers and contributors. We need people to review this anonymisation module to make sure the anonymisation process is safe, both privacy-wise and research-wise (i.e. anonymised data are still useful). Please try these functions, use them, abuse them, and [contact us](https://github.com/borisbaldassari/data-anonymiser/issues) if you have any concern or question.
 
 # Anonymise utilities
 
-This Perl module provides utilities to anonymise data, in the context of dataset generation. The idea basically is to encrypt the data with a private/public key system and then throw away the keys. It has the following properties:
+This Perl module provides utilities to anonymise data, in the context of dataset generation. The module provides several functions to anonymise different types of data (e.g. email addresses, names..), either by a one-way function (anonymised data cannot be recovered) or two-ways functions (anonymised data can be recovered using the private key). In all cases the anonymisation mechanism preserves unicity of transformation, which means that several occurrences of the same id will be translated to the same scrambled string. This enables research analysis and studies while preserving privacy within the dataset.
+
+From the technical standpoint the idea basically is to encrypt the data with a private/public key system -- in this case, RSA -- and then throw away the keys. It has the following properties:
 
 * Retrieving the original data is close to impossible, according to current cryptographic systems. One can still, for debugging purposes, get the original data back if the key is saved. For production or final releases the key should not be saved anywhere to ensure privacy.
 * It still preserves one-to-one relationship between original data and encrypted data, with as little collisions as possible. This is especially useful for research analysis, where one can detect identical items without knowing the protected data.
 
-It is ok to truncate hashes, and encoding base64 makes the collision risk a bit lower. For a good explanation see [hash function that produces short hashes](https://stackoverflow.com/questions/4567089/hash-function-that-produces-short-hashes) on StackOverflow.
+Note about one-way shortened srambling functions: it is ok to truncate hashes, and encoding base64 makes the collision risk a bit lower. For a good explanation see [hash function that produces short hashes](https://stackoverflow.com/questions/4567089/hash-function-that-produces-short-hashes) on StackOverflow.
 
 
 ## Module description
@@ -27,24 +29,21 @@ $utils->create_keys();
 my $scrambled = $utils->scramble_string("blablabla");
 
 # Get a full-size binary-encoded string
-my $scrambled = $utils->scramble_string("blablabla");
+my $scrambled = $utils->encode_string($str)("blablabla");
 
 # Get a full-size base64-encoded string
-my $scrambled = $utils->scramble_string("blablabla");
+my $scrambled = $utils->encode_string_base64("blablabla");
 ```
 
 The Perl module offers the following functions:
 
 * **scramble_string($str)** Returns a 16 chars anonymised string. Several runs on the same input string will always return the same scrambled string.
 
+* **scramble_email($str)** Encode an email address with the generated public/private key and returns a set of 2 strings, each truncated to 16 chars. Output is base64-encoded. Note that this function is one-way: it is not possible to retrieve the plain text string from the truncated output.
+
 * **encode_string($str)** Returns a full-size (512 chars) string encoded using the private key. The returned string will most likely contain binary characters. Several runs on the same input string will always return the same string.
 
 * **encode_string_base64($str)** Returns a full-size (692 chars) string encoded using the private key and then encoded in base64. The returned string will not contain any binary characters. Several runs on the same input string will always return the same scrambled string.
-
-
-## Roadmap
-
-We plan on having specific functions for specific data types, e.g. email addresses.
 
 
 ## Technical reauirements
