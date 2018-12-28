@@ -28,7 +28,8 @@ my $key = $utils->create_keys();
 ok($key =~ m!^MII!, "Public key starts with MII...");
 ok(length($key) == 746, "Public key has length 746.");
 
-my $key_export = $utils->export_private_key_der();
+my $key_priv = $utils->export_private_key_der();
+my $key_pub = $utils->export_public_key_der();
 
 note("Apply anonymisation to various entries.");
 my $str = "B";
@@ -43,21 +44,27 @@ my $scrambled2 = $utils->scramble_string($str);
 ok(length($scrambled2) == 16, "Scrambled output for input 9 char is 16 chars long.");
 ok($scrambled eq $scrambled2, "Scrambled outputs are equal.");
 
-note("Re-import exported key.");
+note("Re-create key, and re-import former exported key.");
 $utils->create_keys();
-$utils->import_private_key_der($key_export);
+$utils->import_private_key_der($key_priv);
 
 my $scrambled_newkey = $utils->scramble_string($str);
-ok($scrambled eq $scrambled_newkey, "Scrambled outputs after key import are equal.");
+ok($scrambled eq $scrambled_newkey, "Scrambled outputs after key import on same object are equal.");
 
 note("Create new object, re-import exported key.");
 my $utils2 = Anonymise::Utilities->new();
-$utils2->import_private_key_der($key_export);
+
+print "scrambled is $scrambled.\n";
+
 my $scrambled_newkey2 = $utils2->scramble_string($str);
 ok($scrambled eq $scrambled_newkey2, "Scrambled outputs after new object & import are equal.");
 
+print "scrambled2 is $scrambled_newkey2.\n";
+
 
 $str = "Blmeciruvqfl6546878454hsqjshdayuyuiyuyuyi878797987uzegfbuayzeirzecluiyfdshbcbqsfdhjbho";
+$utils2->import_private_key_der($key_priv);
+$utils2->import_public_key_der($key_pub);
 $scrambled = $utils->scramble_string($str);
 ok(length($scrambled) == 16, "Scrambled output for input " . length($str) . " char is 16 chars long.");
 
@@ -129,8 +136,10 @@ ok($email_x =~ m![^@]+\@[^@]+!, "Scrambled empty email has 2 parts separated by 
 
 $str = 'This is a long text with some email address hidden like boris@gmail.com and some text after.';
 $email_x = $utils->auto_scramble($str); 
-ok(length($email_x) == 110, "Scrambled email is 110 chars long.");
-ok($email_x =~ m!^This is a long text with some email address hidden like !, "Scrambled email has correct beginning.");
-ok($email_x =~ m! and some text after.$!, "Scrambled email has correct ending.");
+ok(length($email_x) == 110, "Auto-scrambled email is 110 chars long.");
+ok($email_x =~ m!^This is a long text with some email address hidden like !, "Auto-scrambled email has correct beginning.");
+ok($email_x =~ m! and some text after.$!, "Auto-scrambled email has correct ending.");
+
+
 
 done_testing();

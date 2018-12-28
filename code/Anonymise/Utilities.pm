@@ -36,7 +36,7 @@ sub new {
     return $self;
 }
 
-# Imports the pair of public/private key.
+# Imports the private key.
 # Params: 
 #   - The private key.
 sub import_private_key_der() {
@@ -48,18 +48,28 @@ sub import_private_key_der() {
     return 1;
 }
 
-# Exports the pair of public/private key.
+# Exports the private key.
+# Params: 
+#   - A file name to export the private key to.
 # Returns: 
 #   - The private key (binary data).
 sub export_private_key_der() {
     my $self = shift;
 
-    my $private_der = $pk->export_key_der('private');
+    my $private_der;
+
+    eval {
+      $private_der = $pk->export_key_der('private');
+    };
+    if ($@) {
+      print "[Anonymise::Utilities] Failed obtaining the private key.\n";
+      print $@;
+    }
 
     return $private_der;
 }
 
-# Imports the pair of public/private key.
+# Imports the public key.
 # Params: 
 #   - The public key.
 sub import_public_key_der() {
@@ -71,13 +81,21 @@ sub import_public_key_der() {
     return 1;
 }
 
-# Exports the pair of public/private key.
+# Exports the public key.
 # Returns: 
 #   - The public key (binary data).
 sub export_public_key_der() {
     my $self = shift;
 
-    my $public_der = $pk->export_key_der('public');
+    my $public_der;
+
+    eval {
+      $public_der = $pk->export_key_der('public');
+    };
+    if ($@) {
+      print "Failed obtaining the public key.\n";
+      print $@;
+    }
 
     return $public_der;
 }
@@ -216,9 +234,52 @@ sub auto_scramble() {
     my $in = shift || '';
 
     # Detect email addresses
-    $in =~ s!([^@\s]+\@[^.]+\.\S+)!&scramble_email($self, $1)!ge;
+    $in =~ s!([^@\s]+\@[^.\s]+\.\S+)!&scramble_email($self, $1)!ge;
     
     return $in;
+}
+
+# Test/internal code, should not be used/called.
+sub _get_known_scramble() {
+    return \%known_scramble;
+}
+
+sub _get_known_encode() {
+    return \%known_encode;
+}
+
+use Storable qw(nstore retrieve);
+
+sub write_maps() {
+    my $self = shift;
+    my $file = shift || 'mapping.data';
+    
+    my $save = { 
+        'scramble' => \%known_scramble,
+        'encode' => \%known_encode,
+        };
+    nstore($save, $file);
+}
+
+sub read_maps() {
+    my $self = shift;
+    my $file = shift || 'mapping.data';
+    
+    my $save = retrieve($file);
+    %known_scramble = %{$save->{'scramble'}};
+    %known_encode = %{$save->{'encode'}};
+}
+
+sub _save_scrambled() {
+    my $self = shift;
+
+    nstore(\%known_scramble, 'scrambled.data');
+}
+
+sub _save_encoded() {
+    my $self = shift;
+
+    nstore(\%known_encode, 'encoded.data');
 }
 
 
