@@ -48,7 +48,7 @@ The Perl module offers the following functions:
 
 ## Technical reauirements
 
-The  Perl module requires `Crypt::PK::RSA`.
+The  Perl module requires `Crypt::PK::RSA`, which is part of the core distribution (at least as of December, 2018 on Strawberry Perl). 
 
 ## Functional requirements
 
