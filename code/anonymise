@@ -1,0 +1,182 @@
+#! perl 
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+use File::Path qw(make_path);
+use Data::Dumper;
+
+use Anonymise::Utilities;
+
+my $usage = <<EOU;
+Usage: 
+
+    $0 [-s|--session=session_name]
+       [-q|--quiet]
+       [-f|--from-file=mydata.txt]
+       [-t|--to-file=mydata.scrambled]
+       command [string_in]
+
+Where: 
+    command is one of:
+        scramble   Anonymise. If given a file, will anonymise email addresses. 
+                   If given strings on command line, will anonymise them individually
+                   regardless of their type.
+        encrypt    Not yet implemented
+        decrypt    Not yet implemented
+
+    -s|--session=session_name Use mapping and keys associated to session session_name.
+        If session_name directory doesn't exist, it will be created.
+        If session_name directory exists, it will be reused (keys and mapping).
+        If no session is provided the anonymisation will be one-shot.
+    -q|--quiet Be quiet, output only anonymised text. 
+    -f|--from-file=mydata.txt Anonymise content from file mydata.txt.
+    -t|--to-file=mydata.txt Write anonymised text to file.
+
+     [string_in] a text/string to anonymise.
+        
+EOU
+#'
+
+# Set default values for options.
+my ($opt_session, $opt_quiet);
+my ($opt_file_in, $opt_file_out);
+
+# Retrieve options.
+GetOptions(
+    'session=s'    => \$opt_session, 
+    'quiet'        => \$opt_quiet, 
+    'from-file=s'  => \$opt_file_in,
+    'to-file=s'  => \$opt_file_out,
+    );
+
+my $cmd = shift @ARGV or die "I need a command: \n" . $usage;
+my @text_in = @ARGV;
+my @text_out = ();
+my $action = "";
+
+# Check that the command is recognised.
+if ( index('scramble', $cmd) == 0 ) {
+    print "Ordered to scramble.\n" unless (defined($opt_quiet));
+    $action = "sc";
+} elsif ( index('encrypt', $cmd) == 0 ) {
+    print "Ordered to encrypt.\n" unless (defined($opt_quiet));
+    $action = "en";
+} elsif ( index('decrypt', $cmd) == 0 ) {
+    print "Ordered to decrypt.\n" unless (defined($opt_quiet));
+    $action = "de";
+} else {
+    print "Could not recognise command. Exiting.\n";
+    exit 4;
+}
+
+if ( (not defined($opt_file_in)) and (scalar(@ARGV) == 0) ) {
+    print "Can't find anything to anonymise. Exiting.\n";
+    exit 6;
+}
+
+# Defining default file names for session files.
+my $file_mapping = "mapping.data";
+my $file_pub = "key.pub";
+my $file_priv = "key.priv";
+
+my $anon = Anonymise::Utilities->new();
+
+# Session management.
+if ( defined($opt_session) ) {
+    if ( -d $opt_session ) {
+        print "* Found directory [$opt_session]. Reusing session.\n" unless (defined($opt_quiet));
+
+        # Loading mapping and keys from session directory..
+        $/ = undef;
+
+        open( my $fh, "<", "${opt_session}/${file_pub}" ) or die "Can't open file ${opt_session}/${file_pub}.";
+        my $key_pub = <$fh>;
+        close($fh);
+
+        open( $fh, "<", "${opt_session}/${file_priv}" ) or die "Can't open file ${opt_session}/${file_priv}.";
+        my $key_priv = <$fh>;
+        close($fh);
+
+        # Initialising utility with the keys.
+        $anon->import_public_key_der($key_pub);
+        $anon->import_private_key_der($key_priv);
+        $anon->read_maps("${opt_session}/${file_mapping}");
+
+    } else {
+        print "* Directory [$opt_session] not found. Creating new session.\n" unless (defined($opt_quiet));
+        
+        # Initialise session, save file into session directory.
+        $anon->create_keys();
+        
+        # Export keys.
+        my $key_pub = $anon->export_public_key_der();
+        my $key_priv = $anon->export_private_key_der();
+        
+        # Writing keys and mapping to session directory.
+        $/ = undef;
+
+        print "* Creating directory for new session.\n" unless (defined($opt_quiet));
+        make_path($opt_session);
+        
+        print "* Writing private key to [${opt_session}/${file_pub}].\n" unless (defined($opt_quiet));
+        open( my $fh, ">", "${opt_session}/${file_pub}" ) or die "Can't open file ${opt_session}/${file_pub}.";
+        print $fh $key_pub;
+        close($fh);
+
+        print "* Writing private key to [${opt_session}/${file_priv}].\n" unless (defined($opt_quiet));
+        open( $fh, ">", "${opt_session}/${file_priv}" ) or die "Can't open file ${opt_session}/${file_priv}.";
+        print $fh $key_priv;
+        close($fh);
+    }
+} else {
+    # No session information provided, this is a one-shot run.
+    print "* No session information provided, this is a one-shot run.\n" unless (defined($opt_quiet));
+    
+    # Initialise session.
+    $anon->create_keys();
+}
+
+if ( defined($opt_file_in) ) {
+
+    # Slurp file, anonymise.
+    open( my $fh_in, "<", ${opt_file_in} ) or die "Can't open file ${opt_file_in}.";
+    @text_in = <$fh_in>;
+    close($fh_in);
+
+    # Apply automatic detection of data to be scrambled.
+    # As of today, this includes only the email addresses.
+    foreach my $l (@text_in) {
+        push( @text_out, $anon->auto_scramble($l) );
+    }
+    
+} else {
+    
+    # Anonymise command line string.
+    foreach my $l (@text_in) {
+        # Is it an email?
+        if ($l =~ m!^[^@\s]+\@[^.\s]+\.\S+$!) {
+            push( @text_out, $anon->scramble_email($l) );
+        } else {
+            push( @text_out, $anon->scramble_string($l) );
+        }
+    }
+}
+
+
+# If requested, write output to file.
+if ( defined($opt_file_out) ) {
+    open( my $fh_out, ">", ${opt_file_out} ) or die "Can't open file ${opt_file_out}.";
+    for (@text_out) { print $fh_out $_; }
+    close($fh_out);
+} else {
+    for (@text_out) { print "$_\n"; }
+}
+
+# Write current mapping to file if sessions are enabled.
+if ( defined($opt_session) ) {
+    $anon->write_maps("${opt_session}/${file_mapping}");
+}
+
+
