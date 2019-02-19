@@ -234,7 +234,7 @@ sub auto_scramble() {
     my $in = shift || '';
 
     # Detect email addresses
-    $in =~ s!([^@\s]+\@[^.\s]+\.\S+)!&scramble_email($self, $1)!ge;
+    $in =~ s!([a-zA-Z0-9.]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]+)!&scramble_email($self, $1)!ge;
     
     return $in;
 }
