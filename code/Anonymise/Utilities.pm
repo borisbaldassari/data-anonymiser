@@ -172,6 +172,7 @@ sub scramble_email() {
     return $out_short;
 }
 
+
 # Encode a string with the generated public/private key and returns 
 # the string. The output will include weird chars.
 #
@@ -233,9 +234,15 @@ sub auto_scramble() {
     my $self = shift;
     my $in = shift || '';
 
+    # Detect name + email addresses in mboxes
+    $in =~ s!From: (.*)\s?<([-a-zA-Z0-9.]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]+)>\s.*$!"From: " . &scramble_string($self, $1) . " <" . &scramble_email($self, $2) . ">\n"!ge;
+    $in =~ s!To: (.*)\s?<([-a-zA-Z0-9.]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]+)>\s.*$!"To: " . &scramble_string($self, $1) . " <" . &scramble_email($self, $2) . ">\n"!ge;
+    $in =~ s!Cc: (.*)\s?<([-a-zA-Z0-9.]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]+)>\s.*$!"Cc: " . &scramble_string($self, $1) . " <" . &scramble_email($self, $2) . ">\n"!ge;
+    $in =~ s!Reply-To: (.*)\s?<([-a-zA-Z0-9.]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]+)>\s.*$!"Reply-To: " . &scramble_string($self, $1) . " <" . &scramble_email($self, $2) . ">\n"!ge;
+
     # Detect email addresses
-    $in =~ s!([a-zA-Z0-9.]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]+)!&scramble_email($self, $1)!ge;
-    
+    $in =~ s!([-a-zA-Z0-9.]+\@[-a-zA-Z0-9.]+\.[a-zA-Z]+)!&scramble_email($self, $1)!ge;
+        
     return $in;
 }
 
