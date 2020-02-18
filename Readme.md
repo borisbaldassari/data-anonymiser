@@ -15,6 +15,9 @@ From the technical standpoint the idea basically is to encrypt the data with a p
 
 Note about one-way shortened srambling functions: it is ok to truncate hashes, and encoding base64 makes the collision risk a bit lower. For a good explanation see [hash function that produces short hashes](https://stackoverflow.com/questions/4567089/hash-function-that-produces-short-hashes) on StackOverflow.
 
+## Aknowledgements
+
+Data-anonymiser has been partially funded through the [CROSSMINER project](https://crossminer.org) under the European Union's Horizon 2020 Research and Innovation Programme under grant agreement No. 732223.
 
 ## Module description
 
